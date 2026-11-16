@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmniCRM — Prototype</title>
+<meta name="description" content="OmniCRM interactive prototype — the all-in-one smart CRM for every business.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6f7f4;
+    --surface: #ffffff;
+    --ink: #14241c;
+    --ink-soft: #5c6b62;
+    --line: #e5e9e3;
+    --accent: #0b8f5c;
+    --accent-deep: #0a6e48;
+    --accent-soft: #e3f3ec;
+    --gold: #c99a2e;
+    --danger: #c0392b;
+    --wa: #25d366;
+    --radius: 14px;
+    --shadow: 0 8px 24px -12px rgba(20,36,28,0.18);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: "DM Sans", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    font-size: 15px;
+  }
+
+  .app { display: flex; min-height: 100vh; }
+
+  /* ---------- sidebar (desktop) ---------- */
+  .sidebar {
+    width: 230px; flex-shrink: 0;
+    background: #0f2319;
+    color: #d7e5dc;
+    padding: 22px 14px;
+    display: flex; flex-direction: column;
+    position: sticky; top: 0; height: 100vh;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; padding: 0 10px 22px; }
+  .logo-mark {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), #12b57b);
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700; font-size: 17px;
+  }
+  .logo b { color: #fff; font-size: 16.5px; letter-spacing: 0.2px; }
+  .logo span { font-size: 11px; color: #7f9c8a; }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 11px 12px; border-radius: 11px;
+    cursor: pointer; color: #b9cdc1;
+    font-weight: 500; font-size: 14px;
+    margin-bottom: 3px; transition: background 0.15s, color 0.15s;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.06); }
+  .nav-item.active { background: var(--accent); color: #fff; }
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .nav-badge {
+    margin-left: auto; background: var(--gold); color: #201a04;
+    font-size: 10.5px; font-weight: 700; border-radius: 20px; padding: 1px 7px;
+  }
+  .side-foot { margin-top: auto; padding: 12px 10px 0; border-top: 1px solid rgba(255,255,255,0.08); }
+  .biz-card { display: flex; gap: 10px; align-items: center; }
+  .biz-ava {
+    width: 36px; height: 36px; border-radius: 11px; flex-shrink: 0;
+    background: linear-gradient(135deg, #c99a2e, #e8c15c);
+    display: grid; place-items: center; color: #201a04; font-weight: 700;
+  }
+  .biz-card b { color: #fff; font-size: 13px; display: block; }
+  .biz-card span { font-size: 11px; color: #7f9c8a; }
+
+  /* ---------- main ---------- */
+  .main {
+    flex: 1; min-width: 0;
+    padding: 20px clamp(14px, 3vw, 34px) 96px;
+    max-width: 1100px;
+  }
+  .topbar { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .greet { flex: 1; min-width: 0; }
+  .greet h1 { font-size: 21px; font-weight: 700; letter-spacing: -0.3px; }
+  .greet p { color: var(--ink-soft); font-size: 13px; }
+  .chip {
+    background: var(--surface); border: 1px solid var(--line);
+    border-radius: 22px; padding: 7px 13px; font-size: 12.5px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+  }
+  .chip.wa { color: #0a5e31; border-color: #c9efd9; background: #eefaf3; }
+  .avatar {
+    width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(135deg, #0b8f5c, #12b57b);
+    color: #fff; font-weight: 700; display: grid; place-items: center;
+    font-size: 14px; cursor: pointer;
+  }
+
+  /* ---------- screens ---------- */
+  .screen { display: none; animation: fadein 0.25s ease; }
+  .screen.active { display: block; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 15px 16px; box-shadow: var(--shadow);
+  }
+  .kpi .label { font-size: 12px; color: var(--ink-soft); }
+  .kpi .value { font-size: 21px; font-weight: 700; margin-top: 3px; letter-spacing: -0.4px; }
+  .kpi .delta { font-size: 11.5px; margin-top: 3px; color: var(--accent); font-weight: 500; }
+  .kpi .delta.down { color: var(--danger); }
+
+  .grid2 { display: grid; grid-template-columns: 1.6fr 1fr; gap: 14px; }
+  @media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 18px; margin-bottom: 14px;
+  }
+  .card h3 { font-size: 15px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .card h3 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+
+  .spark { display: flex; align-items: flex-end; gap: 6px; height: 74px; padding-top: 8px; }
+  .spark .bar {
+    flex: 1; border-radius: 6px 6px 3px 3px;
+    background: linear-gradient(to top, var(--accent-deep), var(--accent));
+    opacity: 0.85; min-height: 8px;
+  }
+  .spark .bar.dim { opacity: 0.25; }
+  .spark-labels { display: flex; gap: 6px; font-size: 10px; color: var(--ink-soft); margin-top: 6px; }
+  .spark-labels span { flex: 1; text-align: center; }
+
+  .todo-item {
+    display: flex; align-items: center; gap: 11px; padding: 11px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .todo-item:last-child { border-bottom: 0; }
+  .todo-check {
+    width: 22px; height: 22px; border-radius: 8px; border: 1.6px solid #c3cec6;
+    cursor: pointer; display: grid; place-items: center; flex-shrink: 0;
+    transition: all 0.15s; background: transparent;
+  }
+  .todo-check.done { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .todo-body { flex: 1; min-width: 0; }
+  .todo-body b { font-size: 13.5px; font-weight: 600; display: block; }
+  .todo-body span { font-size: 12px; color: var(--ink-soft); }
+  .todo-tag {
+    font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px; flex-shrink: 0;
+  }
+  .tag-gold { background: #f6ecd2; color: #8a6a12; }
+  .tag-green { background: var(--accent-soft); color: var(--accent-deep); }
+  .tag-red { background: #fbe5e2; color: var(--danger); }
+
+  .ai-digest {
+    background: linear-gradient(135deg, #0f2319, #16472f);
+    color: #eaf5ee; border-radius: var(--radius); padding: 18px; margin-bottom: 14px;
+  }
+  .ai-digest .head { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; margin-bottom: 10px; }
+  .ai-digest .head .sparkle { color: var(--gold); }
+  .ai-digest p { font-size: 13px; line-height: 1.55; color: #cfe3d6; }
+  .ai-digest .acts { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .ai-btn {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18);
+    color: #fff; border-radius: 20px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+  }
+  .ai-btn:hover { background: rgba(255,255,255,0.2); }
+
+  /* customers */
+  .searchbar {
+    display: flex; align-items: center; gap: 9px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px;
+    box-shadow: var(--shadow);
+  }
+  .searchbar input { border: 0; outline: 0; flex: 1; font-size: 14px; font-family: inherit; background: transparent; }
+  .filters { display: flex; gap: 7px; margin-bottom: 14px; flex-wrap: wrap; }
+  .f-chip {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 20px;
+    padding: 6px 13px; font-size: 12.5px; font-weight: 500; cursor: pointer; color: var(--ink-soft);
+  }
+  .f-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cust {
+    display: flex; align-items: center; gap: 12px; padding: 13px 4px;
+    border-bottom: 1px solid var(--line); cursor: pointer;
+  }
+  .cust:hover { background: #fafbf9; }
+  .cust-ava {
+    width: 42px; height: 42px; border-radius: 13px; flex-shrink: 0; display: grid; place-items: center;
+    font-weight: 700; font-size: 15px; color: #fff;
+  }
+  .cust-info { flex: 1; min-width: 0; }
+  .cust-info b { font-size: 14px; font-weight: 600; }
+  .cust-info span { display: block; font-size: 12px; color: var(--ink-soft); }
+  .cust-right { text-align: right; }
+  .cust-right .amt { font-weight: 700; font-size: 13.5px; }
+  .cust-right .st { font-size: 11px; color: var(--ink-soft); }
+
+  /* inbox */
+  .inbox-wrap { display: grid; grid-template-columns: 300px 1fr; gap: 14px; }
+  @media (max-width: 860px) { .inbox-wrap { grid-template-columns: 1fr; } }
+  .chat-list { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .chat-row { display: flex; gap: 11px; padding: 13px 14px; cursor: pointer; border-bottom: 1px solid var(--line); align-items: center; }
+  .chat-row.active { background: var(--accent-soft); }
+  .chat-row .time { margin-left: auto; font-size: 11px; color: var(--ink-soft); flex-shrink: 0; }
+  .chat-row b { font-size: 13.5px; display: block; }
+  .chat-row span { font-size: 12px; color: var(--ink-soft); display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+  .wa-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--wa); flex-shrink: 0; margin-top: 5px; }
+
+  .chat-window { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; min-height: 480px; }
+  .chat-head { padding: 13px 16px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 11px; }
+  .chat-head b { font-size: 14px; }
+  .chat-head span { font-size: 12px; color: var(--ink-soft); }
+  .msgs { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 9px; overflow-y: auto; max-height: 380px; background: #fbfcfa; }
+  .msg { max-width: 76%; padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.45; }
+  .msg.in { background: #eceff0; border-bottom-left-radius: 5px; align-self: flex-start; }
+  .msg.out { background: #d9f2e4; border-bottom-right-radius: 5px; align-self: flex-end; }
+  .msg.ai {
+    background: #fff8ea; border: 1px dashed #e3c877; border-radius: 12px;
+    font-size: 13px; align-self: flex-start; max-width: 85%;
+  }
+  .msg.ai b { color: #8a6a12; display: block; margin-bottom: 4px; font-size: 11.5px; letter-spacing: 0.4px; }
+  .draft-acts { display: flex; gap: 8px; margin-top: 9px; }
+  .btn {
+    border: 0; border-radius: 10px; padding: 9px 16px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-deep); }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border: 1px solid var(--line); }
+  .chat-input { display: flex; gap: 9px; padding: 12px 14px; border-top: 1px solid var(--line); }
+  .chat-input input { flex: 1; border: 1px solid var(--line); border-radius: 22px; padding: 10px 15px; font-size: 13.5px; outline: none; font-family: inherit; }
+  .send-btn { width: 42px; height: 42px; border-radius: 50%; border: 0; background: var(--wa); color: #fff; cursor: pointer; display: grid; place-items: center; flex-shrink: 0; }
+
+  /* money */
+  .money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 860px) { .money-grid { grid-template-columns: 1fr; } }
+  .txn { display: flex; align-items: center; gap: 11px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .txn:last-child { border-bottom: 0; }
+  .txn .ic {
+    width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0;
+    font-weight: 700; font-size: 13px;
+  }
+  .ic.in { background: var(--accent-soft); color: var(--accent-deep); }
+  .ic.out { background: #fbe5e2; color: var(--danger); }
+  .txn b { font-size: 13.5px; display: block; }
+  .txn span { font-size: 12px; color: var(--ink-soft); }
+  .txn .amt { margin-left: auto; font-weight: 700; font-size: 13.5px; }
+
+  /* copilot */
+  .copilot {
+    background: linear-gradient(160deg, #0f2319, #123a28);
+    border-radius: 20px; padding: 22px; color: #eaf5ee; box-shadow: var(--shadow);
+  }
+  .copilot .cp-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .copilot .cp-head .orb {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: conic-gradient(from 0deg, #0b8f5c, #c99a2e, #12b57b, #0b8f5c);
+    display: grid; place-items: center; color: #fff;
+  }
+  .copilot h2 { font-size: 17px; }
+  .copilot .sub { font-size: 12.5px; color: #9fc4ad; margin-bottom: 16px; }
+  .cp-msgs { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+  .cp-q { align-self: flex-end; background: var(--accent); border-radius: 14px 14px 4px 14px; padding: 10px 14px; font-size: 13.5px; max-width: 78%; }
+  .cp-a {
+    align-self: flex-start; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 14px 14px 14px 4px; padding: 12px 15px; font-size: 13.5px; max-width: 88%; line-height: 1.5;
+  }
+  .cp-a b { color: #f0d78a; }
+  .cp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; }
+  .cp-input { display: flex; gap: 9px; }
+  .cp-input input {
+    flex: 1; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.16);
+    border-radius: 24px; padding: 12px 16px; color: #fff; font-size: 13.5px; outline: none; font-family: inherit;
+  }
+  .cp-input input::placeholder { color: #7fa08c; }
+  .mic-btn {
+    width: 46px; height: 46px; border-radius: 50%; border: 0; flex-shrink: 0;
+    background: var(--gold); color: #201a04; cursor: pointer; display: grid; place-items: center;
+  }
+  .mic-btn.rec { animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(201,154,46,0.5);} 50% { box-shadow: 0 0 0 9px rgba(201,154,46,0);} }
+  .sug { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .sug span {
+    border: 1px solid rgba(255,255,255,0.16); border-radius: 20px; padding: 6px 12px;
+    font-size: 12px; cursor: pointer; color: #cfe3d6;
+  }
+  .sug span:hover { background: rgba(255,255,255,0.1); }
+
+  /* toast */
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(30px);
+    background: #0f2319; color: #fff; padding: 12px 20px; border-radius: 14px;
+    font-size: 13.5px; font-weight: 500; opacity: 0; pointer-events: none;
+    transition: all 0.3s; box-shadow: var(--shadow); z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* bottom nav (mobile) */
+  .bottomnav {
+    display: none; position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-top: 1px solid var(--line); z-index: 40;
+    padding: 7px 6px calc(7px + env(safe-area-inset-bottom));
+  }
+  .bottomnav .nav-item { flex-direction: column; gap: 3px; font-size: 10.5px; padding: 7px 4px; color: var(--ink-soft); flex: 1; text-align: center; justify-content: center; }
+  .bottomnav .nav-item svg { width: 20px; height: 20px; }
+  .bottomnav .nav-item.active { background: transparent; color: var(--accent-deep); }
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .bottomnav { display: flex; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">O</div>
+      <div><b>OmniCRM</b><br><span>prototype v0.1</span></div>
+    </div>
+    <div class="nav-item active" data-screen="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+      Home
+    </div>
+    <div class="nav-item" data-screen="customers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3.2 3-5 5.5-5s4.7 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.5c2.3.2 4 1.8 4.6 4.5"/></svg>
+      Customer Book
+    </div>
+    <div class="nav-item" data-screen="inbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/></svg>
+      WhatsApp Inbox
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" data-screen="money">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2.5"/><circle cx="12" cy="12.5" r="3"/><path d="M6.5 10.5v4M17.5 10.5v4"/></svg>
+      Money In/Out
+    </div>
+    <div class="nav-item" data-screen="copilot">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4L12 3Z"/><path d="M19 15l.9 2.3L22 18l-2.1.7L19 21l-.9-2.3L16 18l2.1-.7L19 15Z"/></svg>
+      AI Copilot
+    </div>
+    <div class="side-foot">
+      <div class="biz-card">
+        <div class="biz-ava">B</div>
+        <div><b>Bescon Paints</b><span>Growth plan · 7 seats</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <div class="main">
+    <div class="topbar">
+      <div class="greet">
+        <h1 id="screenTitle">Good morning, Grant 👋</h1>
+        <p>Monday, 16 November · Here's what needs you today</p>
+      </div>
+      <div class="chip wa">+ New Sale</div>
+      <div class="avatar">G</div>
+    </div>
+
+    <!-- ============ HOME ============ -->
+    <section class="screen active" id="screen-home">
+      <div class="kpis">
+        <div class="kpi"><div class="label">Sales this month</div><div class="value">₦3.2m</div><div class="delta">▲ 18% vs last month</div></div>
+        <div class="kpi"><div class="label">Money in today</div><div class="value">₦215,000</div><div class="delta">4 payments</div></div>
+        <div class="kpi"><div class="label">Outstanding debts</div><div class="value">₦96,500</div><div class="delta down">3 debtors</div></div>
+        <div class="kpi"><div class="label">Active deals</div><div class="value">14</div><div class="delta">₦8.7m pipeline</div></div>
+      </div>
+
+      <div class="ai-digest">
+        <div class="head"><span class="sparkle">✦</span> Today's AI Digest</div>
+        <p>You have 3 follow-ups due today. Alpha Mead's Day-4 follow-up is ready to send — I drafted the WhatsApp message. Eko Maintenance's visit window opened this week. Your best performer this month is the FMPP Gold tier conversation at GPFI.</p>
+        <div class="acts">
+          <div class="ai-btn" data-go="inbox">Review drafted message</div>
+          <div class="ai-btn" data-go="copilot">Ask the Copilot</div>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="card">
+          <h3><span class="dot"></span> Who to Call Today</h3>
+          <div class="todo-item">
+            <div class="todo-check done" data-check>✓</div>
+            <div class="todo-body"><b>Alpha Mead Group</b><span>Day-4 follow-up · FMPP proposal sent 16 Nov</span></div>
+            <div class="todo-tag tag-gold">Follow up</div>
+          </div>
+          <div class="todo-item">
+            <div class="todo-check" data-check></div>
+            <div class="todo-body"><b>El-Sultan Facility Mgmt</b><span>Proposal sent on WhatsApp · chase politely</span></div>
+            <div class="todo-tag tag-green">WhatsApp</div>
+          </div>
+          <div class="todo-item">
+            <div class="todo-check" data-check></div>
+            <div class="todo-body"><b>Eko Maintenance</b><span>Book the in-person visit for this week</span></div>
+            <div class="todo-tag tag-red">Visit</div>
+          </div>
+          <div class="todo-item">
+            <div class="todo-check" data-check></div>
+            <div class="todo-body"><b>Prime Facilities</b><span>Mrs. Olapade · awaiting reply on WhatsApp</span></div>
+            <div class="todo-tag tag-green">WhatsApp</div>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="dot"></span> Sales — last 7 days</h3>
+          <div class="spark">
+            <div class="bar dim" style="height:30%"></div><div class="bar" style="height:48%"></div>
+            <div class="bar" style="height:38%"></div><div class="bar" style="height:62%"></div>
+            <div class="bar" style="height:55%"></div><div class="bar" style="height:84%"></div><div class="bar" style="height:100%"></div>
+          </div>
+          <div class="spark-labels"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+          <div class="todo-item" style="border:0">
+            <div class="todo-body"><b>Top product</b><span>CORAL Premium Matt · 42% of sales</span></div>
+            <div class="todo-tag tag-green">₦1.35m</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CUSTOMERS ============ -->
+    <section class="screen" id="screen-customers">
+      <div class="searchbar">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8a9990" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="text" placeholder="Search customers, phones, debts…" id="custSearch">
+      </div>
+      <div class="filters">
+        <div class="f-chip active" data-f="all">All</div>
+        <div class="f-chip" data-f="debt">Owes money</div>
+        <div class="f-chip" data-f="lead">Active lead</div>
+        <div class="f-chip" data-f="vip">VIP</div>
+      </div>
+      <div class="card" style="padding:6px 16px">
+        <div class="cust" data-tags="lead vip">
+          <div class="cust-ava" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)">A</div>
+          <div class="cust-info"><b>Alpha Mead Group</b><span>Ikoyi · FMPP proposal sent · follow-up Fri</span></div>
+          <div class="cust-right"><div class="amt">₦2.4m</div><div class="st">Deal · Gold tier</div></div>
+        </div>
+        <div class="cust" data-tags="lead vip">
+          <div class="cust-ava" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)">G</div>
+          <div class="cust-info"><b>GPFI</b><span>Lagos Island · proposal sent · awaiting reply</span></div>
+          <div class="cust-right"><div class="amt">₦1.8m</div><div class="st">Deal · Platinum</div></div>
+        </div>
+        <div class="cust" data-tags="lead">
+          <div class="cust-ava" style="background:linear-gradient(135deg,#0e7490,#22d3ee)">K</div>
+          <div class="cust-info"><b>Knight Frank Nigeria</b><span>Lagos Island · first email sent 16 Nov</span></div>
+          <div class="cust-right"><div class="amt">₦900k</div><div class="st">Lead · warm</div></div>
+        </div>
+        <div class="cust" data-tags="debt">
+          <div class="cust-ava" style="background:linear-gradient(135deg,#c0392b,#f39c6b)">AB</div>
+          <div class="cust-info"><b>Alhaji Bello</b><span>Wholesaler, Alaba · 2 invoices unpaid</span></div>
+          <div class="cust-right"><div class="amt">₦150,000</div><div class="st" style="color:var(--danger)">Overdue 12d</div></div>
+        </div>
+        <div class="cust" data-tags="debt">
+          <div class="cust-ava" style="background:linear-gradient(135deg,#b45309,#fbbf24)">MN</div>
+          <div class="cust-info"><b>Mama Nkechi</b><span>Retail shop, Surulere · 1 invoice unpaid</span></div>
+          <div class="cust-right"><div class="amt">₦18,500</div><div class="st" style="color:var(--danger)">Overdue 5d</div></div>
+        </div>
+        <div class="cust" data-tags="lead">
+          <div class="cust-ava" style="background:linear-gradient(135deg,#047857,#34d399)">E</div>
+          <div class="cust-info"><b>Eko Maintenance</b><span>VI · visit to be booked this week</span></div>
+          <div class="cust-right"><div class="amt">₦1.2m</div><div class="st">Lead · hot</div></div>
+        </div>
+        <div class="cust" data-tags="vip">
+          <div class="cust-ava" style="background:linear-gradient(135deg,#c99a2e,#e8c15c)">JC</div>
+          <div class="cust-info"><b>James Cubitt FM</b><span>Ikoyi · proposal under review · VIP partner</span></div>
+          <div class="cust-right"><div class="amt">₦3.1m</div><div class="st">Deal · Enterprise</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ INBOX ============ -->
+    <section class="screen" id="screen-inbox">
+      <div class="inbox-wrap">
+        <div class="chat-list">
+          <div class="chat-row active" data-chat="gpfi">
+            <div class="wa-dot"></div>
+            <div><b>GPFI — Procurement</b><span>Proposal received, reviewing…</span></div>
+            <div class="time">09:12</div>
+          </div>
+          <div class="chat-row" data-chat="elsultan">
+            <div class="wa-dot"></div>
+            <div><b>Mr. El-Sultan</b><span>Thanks, we will look at it.</span></div>
+            <div class="time">Yesterday</div>
+          </div>
+          <div class="chat-row" data-chat="eko">
+            <div class="wa-dot"></div>
+            <div><b>Eko Maintenance</b><span>Kindly come with the owner…</span></div>
+            <div class="time">Fri</div>
+          </div>
+        </div>
+        <div class="chat-window" id="chatWindow">
+          <div class="chat-head">
+            <div class="wa-dot"></div>
+            <div><b>GPFI — Procurement</b><br><span>bd@globalpfi.com · last seen 09:12</span></div>
+          </div>
+          <div class="msgs" id="msgs">
+            <div class="msg in">Thank you, we have received the proposal. Management will review this week.</div>
+            <div class="msg out">Wonderful — thank you. I will follow up on Friday; happy to walk through the tiers whenever you're ready.</div>
+            <div class="msg ai">
+              <b>✦ AI DRAFT — Day-4 follow-up (approve to send)</b>
+              Good afternoon. Just following up on the FMPP proposal I sent on Monday. Happy to walk you through the tier that suits GPFI's portfolio — 15 minutes is all I would need. Would this week work for a short call?
+              <div class="draft-acts">
+                <button class="btn btn-primary" id="approveSend">Approve & Send</button>
+                <button class="btn btn-ghost" id="editDraft">Edit</button>
+              </div>
+            </div>
+          </div>
+          <div class="chat-input">
+            <input type="text" placeholder="Type a message…" id="chatInput">
+            <button class="send-btn" id="sendMsg">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M3 11.5 21 3l-8.5 18-2.3-7.2L3 11.5Z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MONEY ============ -->
+    <section class="screen" id="screen-money">
+      <div class="kpis">
+        <div class="kpi"><div class="label">In this month</div><div class="value">₦2.1m</div><div class="delta">▲ 12%</div></div>
+        <div class="kpi"><div class="label">Out this month</div><div class="value">₦1.4m</div><div class="delta down">expenses</div></div>
+        <div class="kpi"><div class="label">Profit</div><div class="value">₦680k</div><div class="delta">▼ 3%</div></div>
+      </div>
+      <div class="money-grid">
+        <div class="card">
+          <h3><span class="dot"></span> Recent In — Money Received</h3>
+          <div class="txn"><div class="ic in">↓</div><div><b>Invoice #1042 — Propertygate</b><span>FMPP Gold order · 16 Nov</span></div><div class="amt">₦420,000</div></div>
+          <div class="txn"><div class="ic in">↓</div><div><b>Invoice #1041 — Mama Nkechi</b><span>Retail · 15 Nov</span></div><div class="amt">₦54,500</div></div>
+          <div class="txn"><div class="ic in">↓</div><div><b>Invoice #1040 — Chidi Motors</b><span>Bulk · 14 Nov</span></div><div class="amt">₦118,000</div></div>
+        </div>
+        <div class="card">
+          <h3><span class="dot" style="background:var(--danger)"></span> Outstanding — Who Owes You</h3>
+          <div class="txn"><div class="ic out">↑</div><div><b>Alhaji Bello</b><span>2 invoices · 12 days overdue</span></div><div class="amt" style="color:var(--danger)">₦150,000</div></div>
+          <div class="txn"><div class="ic out">↑</div><div><b>Mama Nkechi</b><span>1 invoice · 5 days overdue</span></div><div class="amt" style="color:var(--danger)">₦18,500</div></div>
+          <div class="txn"><div class="ic out">↑</div><div><b>Chidi Motors</b><span>part-payment pending · friendly</span></div><div class="amt" style="color:#8a6a12">₦62,000</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ COPILOT ============ -->
+    <section class="screen" id="screen-copilot">
+      <div class="copilot">
+        <div class="cp-head"><div class="orb">✦</div><div><h2>AI Copilot</h2><div class="sub">Ask anything about your business — or just speak it</div></div></div>
+        <div class="cp-msgs" id="cpMsgs">
+          <div class="cp-a"><b>Welcome back, Grant.</b><br>Today: 3 follow-ups due, ₦96,500 outstanding, and GPFI's deal looks warmest. What would you like to do?</div>
+        </div>
+        <div class="sug">
+          <span data-ask="Who owes me money?">Who owes me money?</span>
+          <span data-ask="What's my forecast for this month?">Forecast for this month?</span>
+          <span data-ask="Who hasn't bought in 60 days?">Who hasn't bought in 60 days?</span>
+          <span data-ask="Record a sale for Alhaji Bello, 3 buckets, half payment">＋ Record a sale</span>
+        </div>
+        <div class="cp-input" style="margin-top:14px">
+          <input type="text" placeholder="Ask or speak…" id="cpInput">
+          <button class="mic-btn" id="micBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= BOTTOM NAV ================= -->
+  <nav class="bottomnav">
+    <div class="nav-item active" data-screen="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>Home</div>
+    <div class="nav-item" data-screen="customers"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c.8-3.2 3-5 5.5-5s4.7 1.8 5.5 5"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.5c2.3.2 4 1.8 4.6 4.5"/></svg>Customers</div>
+    <div class="nav-item" data-screen="inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/></svg>Inbox</div>
+    <div class="nav-item" data-screen="money"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="13" rx="2.5"/><circle cx="12" cy="12.5" r="3"/><path d="M6.5 10.5v4M17.5 10.5v4"/></svg>Money</div>
+    <div class="nav-item" data-screen="copilot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4L12 3Z"/><path d="M19 15l.9 2.3L22 18l-2.1.7L19 21l-.9-2.3L16 18l2.1-.7L19 15Z"/></svg>Copilot</div>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+  // -------- navigation --------
+  const titles = {
+    home: "Good morning, Grant 👋",
+    customers: "Customer Book",
+    inbox: "WhatsApp Inbox",
+    money: "Money In/Out",
+    copilot: "AI Copilot",
+  };
+  const subs = {
+    home: "Monday, 16 November · Here's what needs you today",
+    customers: "Every customer, every debt, in one place",
+    inbox: "All your business chats, with AI drafts ready",
+    money: "Invoices, payments and debtors at a glance",
+    copilot: "Ask anything about your business — or just speak it",
+  };
+  function showScreen(name) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + name).classList.add('active');
+    document.querySelectorAll('.sidebar .nav-item, .bottomnav .nav-item').forEach(n => {
+      n.classList.toggle('active', n.dataset.screen === name);
+    });
+    document.getElementById('screenTitle').textContent = titles[name];
+    document.querySelector('.greet p').textContent = subs[name];
+    window.scrollTo({top: 0});
+  }
+  document.querySelectorAll('[data-screen]').forEach(el => {
+    el.addEventListener('click', () => showScreen(el.dataset.screen));
+  });
+  document.querySelectorAll('[data-go]').forEach(el => {
+    el.addEventListener('click', () => showScreen(el.dataset.go));
+  });
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // -------- todo checks --------
+  document.querySelectorAll('.todo-check').forEach(c => {
+    c.addEventListener('click', () => {
+      const wasDone = c.classList.contains('done');
+      c.classList.toggle('done', !wasDone);
+      c.textContent = wasDone ? '' : '✓';
+      toast(wasDone ? 'Task reopened' : 'Task completed — tracker updated');
+    });
+  });
+
+  // -------- AI draft approve/send --------
+  const approveBtn = document.getElementById('approveSend');
+  approveBtn.addEventListener('click', () => {
+    const msgs = document.getElementById('msgs');
+    const draft = document.querySelector('.msg.ai');
+    const text = draft.querySelector('b').parentElement.textContent.replace(/✦ AI DRAFT.*?\n\s*/, '').replace(/Approve & SendEdit/g, '').trim();
+    const sent = document.createElement('div');
+    sent.className = 'msg out';
+    sent.textContent = text;
+    draft.remove();
+    msgs.appendChild(sent);
+    toast('Message sent to GPFI ✓ — logged in tracker');
+  });
+  document.getElementById('editDraft').addEventListener('click', () => {
+    toast('Draft opened for editing');
+  });
+  document.getElementById('sendMsg').addEventListener('click', () => {
+    const inp = document.getElementById('chatInput');
+    if (!inp.value.trim()) return;
+    const m = document.createElement('div');
+    m.className = 'msg out';
+    m.textContent = inp.value.trim();
+    document.getElementById('msgs').appendChild(m);
+    inp.value = '';
+  });
+
+  // -------- customer search/filter --------
+  const chips = document.querySelectorAll('.f-chip');
+  chips.forEach(ch => ch.addEventListener('click', () => {
+    chips.forEach(c => c.classList.remove('active'));
+    ch.classList.add('active');
+    const f = ch.dataset.f;
+    document.querySelectorAll('.cust').forEach(cu => {
+      cu.style.display = (f === 'all' || cu.dataset.tags.includes(f)) ? '' : 'none';
+    });
+  }));
+  document.getElementById('custSearch').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll('.cust').forEach(cu => {
+      cu.style.display = cu.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+  });
+
+  // -------- chat rows --------
+  document.querySelectorAll('.chat-row').forEach(r => r.addEventListener('click', () => {
+    document.querySelectorAll('.chat-row').forEach(x => x.classList.remove('active'));
+    r.classList.add('active');
+    toast('Opened chat with ' + r.querySelector('b').textContent);
+  }));
+
+  // -------- copilot --------
+  const answers = {
+    'who owes me money?': '<b>3 debtors, ₦96,500 total.</b><br>1. Alhaji Bello — ₦150,000 (12 days overdue)<br>2. Chidi Motors — ₦62,000 (friendly)<br>3. Mama Nkechi — ₦18,500 (5 days overdue)<br>Want me to draft a polite reminder for Alhaji Bello?',
+    'forecast for this month?': '<b>Forecast: ₦3.8m</b> (vs ₦3.2m target)<br>Driven by GPFI (₦1.8m, 70% confidence), Eko Maintenance (₦1.2m, 55%) and repeat retail orders. Keep the Friday follow-ups and you hit it.',
+    "who hasn't bought in 60 days?": '<b>4 dormant customers found:</b><br>• Fine & Country FM — last order 9 Oct<br>• Jide Taiwo FM — last order 21 Sep<br>• Total Facilities — last order 28 Aug<br>I can draft a "we miss you" broadcast for all 4 — approve to send.',
+  };
+  function askCopilot(q) {
+    const msgs = document.getElementById('cpMsgs');
+    const qu = document.createElement('div');
+    qu.className = 'cp-q';
+    qu.textContent = q;
+    msgs.appendChild(qu);
+    const a = document.createElement('div');
+    a.className = 'cp-a';
+    const key = q.toLowerCase();
+    a.innerHTML = answers[key] || '<b>Got it.</b> I checked your data — say "record a sale" or ask about debts, forecast, or dormant customers and I\'ll work it out instantly.';
+    msgs.appendChild(a);
+  }
+  document.querySelectorAll('[data-ask]').forEach(s => s.addEventListener('click', () => askCopilot(s.dataset.ask)));
+  document.getElementById('cpInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && e.target.value.trim()) {
+      askCopilot(e.target.value.trim());
+      e.target.value = '';
+    }
+  });
+  const mic = document.getElementById('micBtn');
+  mic.addEventListener('click', () => {
+    mic.classList.add('rec');
+    toast('Listening… speak now');
+    setTimeout(() => {
+      mic.classList.remove('rec');
+      askCopilot('Who owes me money?');
+    }, 2200);
+  });
+
+  console.log('OmniCRM prototype ready');
+</script>
+</body>
+</html>
